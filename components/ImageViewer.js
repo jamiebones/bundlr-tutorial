@@ -1,32 +1,38 @@
-import React from "react";
-import { GetUploadedImages } from "../graphql/queries";
-import { useQuery } from "@apollo/client";
+import React, { useEffect, useState } from "react";
+import { myQuery } from "@/queries";
+
+
 
 const ImageViewer = () => {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(false)
 
-    const { loading, error, data } = useQuery(GetUploadedImages, {
-        variables: {
-            tags: [{ name: "application-name", values: ["image-album"] }],
-        },
-    });
-
-    if (error) {
-        return <div>Error Displaying Images</div>
+    const loadUploadedData = async () => {
+        setLoading(true)
+        const query = myQuery();
+        const results = await query.search("irys:transactions").tags([{ name: "application-name", values: ["image-album"] }]);
+        console.log("the result of the transactions: ", results)
+        setData(results);
+        setLoading(false);
     }
+
+    useEffect(() => {
+        loadUploadedData()
+    }, [])
+
+
 
     if (loading) {
         return <div>Loading...........</div>
     }
 
-    console.log("data ", data.transactions.edges)
-
     return <div className="flex flex-wrap">
         {data &&
-            data.transactions.edges.map(({ node }) => (
-                <div className="w-1/5 p-4" key={node.id}>
-                    <img src={`https://arweave.net/${node.id}`} className="w-full h-auto rounded" />
+            data.map(({ tags, id, }) => (
+                <div className="w-1/5 p-4" key={id}>
+                    <img src={`https://arweave.net/${id}`} className="w-full h-auto rounded" />
 
-                    {node.tags.map(({ name, value }) => {
+                    {tags.map(({ name, value }) => {
                         if (name == "caption") {
                             return <h3 className="mt-2 text-lg font-semibold">{value}</h3>
                         } else if (name == "description") {

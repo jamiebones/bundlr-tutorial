@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import Irys from "@irys/sdk";
+
 
 
 const { Private_Key } = process.env;
@@ -31,3 +31,4 @@ export const uploadFileToArweave = async (filepath, tags) => {
     console.log("file uploaded to ", `https://arweave.net/${id}`);
     return id;
 };
+
